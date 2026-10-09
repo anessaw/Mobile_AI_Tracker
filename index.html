@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#111111" />
+  <title>Inventory Scanner</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <div class="app-shell">
+
+    <!-- ======================================================
+         SCANNER SCREEN
+         ====================================================== -->
+    <main id="scannerPage" class="app-page active-page">
+
+      <!-- Header -->
+      <header class="scanner-header">
+        <div class="brand-group">
+          <div class="brand-icon">🌷</div>
+
+          <div>
+            <h1>Inventory <span>Scanner</span></h1>
+            <p>Deteksi objek dengan AI</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <span id="dbStatus" class="status-pill status-pink">
+            DB: Mock Mode
+          </span>
+
+          <button
+            id="settingsTopBtn"
+            class="icon-btn header-settings-btn"
+            type="button"
+            aria-label="Buka settings"
+            data-page-target="settings"
+          >
+            ⚙
+          </button>
+        </div>
+      </header>
+
+
+      <!-- Camera -->
+      <section class="scanner-camera-section">
+
+        <div id="cameraContainer" class="camera-container">
+
+        <!-- Kamera utama -->
+        <video
+          id="video"
+          autoplay
+          playsinline
+          muted
+        ></video>
+
+        <!-- Bounding box AI -->
+        <canvas id="canvas"></canvas>
+
+          <!-- Camera overlay message -->
+          <div id="overlayMsg" class="overlay-msg">
+            <div class="overlay-spinner"></div>
+            <p id="overlayText">
+              Siapkan kamera untuk memulai.
+            </p>
+          </div>
+
+          <!-- Quick camera controls -->
+          <div class="camera-actions">
+
+            <button
+              id="quickCameraBtn"
+              class="camera-action-btn"
+              type="button"
+              aria-label="Camera"
+              title="Camera"
+            >
+              📷
+              <span>Camera</span>
+            </button>
+
+            <button
+              id="quickSwitchBtn"
+              class="camera-action-btn"
+              type="button"
+              aria-label="Ganti kamera"
+              title="Ganti kamera"
+            >
+              ↻
+              <span>Switch</span>
+            </button>
+
+            <button
+              id="quickAiBtn"
+              class="camera-action-btn"
+              type="button"
+              aria-label="AI Scan"
+              title="AI Scan"
+            >
+              ✳
+              <span>AI Scan</span>
+            </button>
+
+            <button
+              id="quickFlashBtn"
+              class="camera-action-btn"
+              type="button"
+              aria-label="Flash"
+              title="Flash"
+            >
+              ⚡
+              <span>Flash</span>
+            </button>
+
+          </div>
+
+
+          <!-- Detection result overlay -->
+          <div class="detection-result">
+
+            <div class="detection-main">
+              <strong id="detectedObjectName">Belum ada objek</strong>
+
+              <span id="detectedObjectInfo">
+                Arahkan kamera ke objek target
+              </span>
+            </div>
+
+            <span
+              id="detectedConfidence"
+              class="confidence-badge"
+            >
+              —
+            </span>
+
+          </div>
+
+
+          <!-- AI status -->
+          <div class="ai-ready-pill">
+            <span class="status-dot"></span>
+
+            <span id="aiReadyText">
+              AI Ready
+            </span>
+          </div>
+
+        </div>
+
+
+        <!-- Main scan button -->
+        <div class="scan-action-wrap">
+
+          <button
+            id="mainScanBtn"
+            class="main-scan-btn"
+            type="button"
+          >
+            <span class="scan-icon">⌾</span>
+            <span>Start Scanning</span>
+          </button>
+
+          <!-- Existing Project 4 buttons.
+               Tetap dipertahankan karena app.js lama
+               masih membutuhkannya. -->
+          <div class="legacy-controls">
+
+            <select id="facingMode" aria-label="Pilih kamera">
+              <option value="environment">Belakang</option>
+              <option value="user">Depan</option>
+            </select>
+
+            <button
+              id="startCameraBtn"
+              class="btn btn-primary"
+              type="button"
+            >
+              Start Camera
+            </button>
+
+            <button
+              id="stopCameraBtn"
+              class="btn btn-secondary"
+              type="button"
+              disabled
+            >
+              Stop Camera
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Target objects -->
+      <section class="target-section">
+
+        <div class="section-title-row">
+
+          <div>
+            <h2>Target Objects</h2>
+            <p>Pilih objek yang ingin dideteksi</p>
+          </div>
+
+          <span
+            id="targetSelectedCount"
+            class="selected-count"
+          >
+            7/7 dipilih
+          </span>
+
+        </div>
+
+        <div
+          id="targetClasses"
+          class="target-list"
+        ></div>
+
+      </section>
+
+
+      <!-- Detection summary -->
+      <section class="result-summary">
+
+        <div class="summary-icon">
+          ▮▮▮
+        </div>
+
+        <div class="summary-content">
+          <strong>
+            <span id="detectionCount">0</span>
+            objects detected
+          </strong>
+
+          <span id="detectionSummaryText">
+            Belum ada hasil deteksi
+          </span>
+        </div>
+
+        <span class="summary-arrow">›</span>
+
+      </section>
+
+    </main>
+
+
+    <!-- ======================================================
+         HISTORY SCREEN
+         ====================================================== -->
+    <main id="historyPage" class="app-page">
+
+      <header class="page-header">
+
+        <div>
+          <h2>Detection History</h2>
+          <p>Riwayat hasil deteksi objek</p>
+        </div>
+
+        <div class="header-actions">
+
+          <span
+            id="logModeBadge"
+            class="tiny-chip"
+          >
+            MOCK
+          </span>
+
+          <button
+            id="clearLogsBtn"
+            class="page-icon-btn"
+            type="button"
+            aria-label="Hapus data"
+          >
+            🗑
+          </button>
+
+        </div>
+
+      </header>
+
+
+      <!-- Sync status -->
+      <div class="history-status-row">
+
+        <span id="syncIndicator" class="sync-indicator">
+          <i></i>
+          Menunggu data
+        </span>
+
+        <span id="logCount" class="history-count">
+          0 log
+        </span>
+
+      </div>
+
+
+      <!-- History list -->
+      <section class="history-list-section">
+
+        <div
+          id="dataList"
+          class="data-list"
+        >
+
+          <div class="empty-state">
+
+            <div class="empty-emoji">
+              🌸
+            </div>
+
+            <strong>
+              Belum ada objek terdeteksi
+            </strong>
+
+            <span>
+              Mulai scanning untuk melihat riwayat.
+            </span>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Export -->
+      <div class="history-bottom-action">
+
+        <button
+          id="exportBtn"
+          class="export-btn"
+          type="button"
+        >
+          ↓ &nbsp; Export CSV
+        </button>
+
+      </div>
+
+    </main>
+
+
+    <!-- ======================================================
+         SETTINGS SCREEN
+         ====================================================== -->
+    <main id="settingsPage" class="app-page">
+
+      <header class="page-header">
+
+        <div class="settings-title-wrap">
+
+          <button
+            id="settingsBackBtn"
+            class="back-btn"
+            type="button"
+            data-page-target="scanner"
+            aria-label="Kembali"
+          >
+            ‹
+          </button>
+
+          <div>
+            <h2>Settings</h2>
+            <p>Pengaturan aplikasi</p>
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <!-- Detection confidence -->
+      <section class="settings-card">
+
+        <div class="settings-card-header">
+
+          <div>
+            <h3>Detection Confidence</h3>
+            <p>
+              Minimal tingkat keyakinan deteksi
+            </p>
+          </div>
+
+          <strong
+            id="confidenceValue"
+            class="settings-value"
+          >
+            60%
+          </strong>
+
+        </div>
+
+
+        <label
+          for="confidenceRange"
+          class="visually-hidden"
+        >
+          Detection confidence
+        </label>
+
+        <input
+          id="confidenceRange"
+          type="range"
+          min="30"
+          max="90"
+          step="5"
+          value="60"
+        />
+
+        <div class="range-scale">
+          <span>30%</span>
+          <span>60%</span>
+          <span>90%</span>
+        </div>
+
+      </section>
+
+
+      <!-- Database -->
+      <section class="settings-card">
+
+        <div class="settings-card-header">
+
+          <div>
+            <h3>Database</h3>
+            <p>
+              Pilih tempat menyimpan hasil deteksi
+            </p>
+          </div>
+
+        </div>
+
+
+        <div
+          class="segmented"
+          role="group"
+          aria-label="Mode database"
+        >
+
+          <button
+            class="segment active"
+            data-db-mode="mock"
+            type="button"
+          >
+            🗃 Mock (Lokal)
+          </button>
+
+          <button
+            class="segment"
+            data-db-mode="firebase"
+            type="button"
+          >
+            ☁ Firebase
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- Auto save -->
+      <section class="settings-card setting-row">
+
+        <div>
+          <h3>Auto Save</h3>
+          <p>
+            Simpan hasil deteksi secara otomatis
+          </p>
+        </div>
+
+        <button
+          id="autoSaveToggle"
+          class="toggle-switch active"
+          type="button"
+          aria-label="Auto Save"
+          aria-pressed="true"
+        >
+          <span></span>
+        </button>
+
+      </section>
+
+
+      <!-- Clear data -->
+      <section class="settings-card setting-row">
+
+        <div>
+          <h3>Clear Mock Data</h3>
+          <p>
+            Hapus semua data pada database lokal
+          </p>
+        </div>
+
+        <button
+          id="clearSettingsBtn"
+          class="outline-danger-btn"
+          type="button"
+        >
+          🗑 Clear Data
+        </button>
+
+      </section>
+
+
+      <!-- Export -->
+      <section class="settings-card setting-row">
+
+        <div>
+          <h3>Export Data</h3>
+          <p>
+            Unduh riwayat deteksi dalam format CSV
+          </p>
+        </div>
+
+        <button
+          id="settingsExportBtn"
+          class="outline-pink-btn"
+          type="button"
+        >
+          ↓ Export CSV
+        </button>
+
+      </section>
+
+
+      <!-- AI controls -->
+      <section class="settings-card">
+
+        <div class="settings-card-header">
+
+          <div>
+            <h3>AI Controls</h3>
+            <p>
+              Kontrol model COCO-SSD
+            </p>
+          </div>
+
+          <span
+            id="aiState"
+            class="mini-state"
+          >
+            OFF
+          </span>
+
+        </div>
+
+
+        <button
+          id="loadModelBtn"
+          class="settings-full-btn outline-btn"
+          type="button"
+        >
+          🧠 Muat Model AI
+        </button>
+
+
+        <button
+          id="toggleAiBtn"
+          class="settings-full-btn success-btn"
+          type="button"
+          disabled
+        >
+          ▶ Start AI
+        </button>
+
+
+        <div class="technical-status">
+
+          <div class="technical-item">
+
+            <span>Model</span>
+
+            <strong
+              id="modelStatus"
+              class="status-pill status-neutral"
+            >
+              Model belum dimuat
+            </strong>
+
+          </div>
+
+
+          <div class="technical-item">
+
+            <span>Throttle</span>
+
+            <strong>3 detik</strong>
+
+          </div>
+
+
+          <div class="technical-item">
+
+            <span>Status Kamera</span>
+
+            <strong id="cameraStatus">
+              OFF
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- About -->
+      <section class="settings-card about-card">
+
+        <div>
+          <h3>About</h3>
+          <p>
+            Edge AI Inventory Scanner
+          </p>
+        </div>
+
+        <span class="about-arrow">
+          ›
+        </span>
+
+      </section>
+
+    </main>
+
+
+    <!-- ======================================================
+         BOTTOM NAVIGATION
+         ====================================================== -->
+    <nav class="bottom-nav">
+
+      <button
+        class="nav-item active"
+        data-page-target="scanner"
+        type="button"
+      >
+        <span class="nav-icon">⌾</span>
+        <span>Scanner</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page-target="history"
+        type="button"
+      >
+        <span class="nav-icon">▤</span>
+        <span>History</span>
+      </button>
+
+
+      <button
+        class="nav-item"
+        data-page-target="settings"
+        type="button"
+      >
+        <span class="nav-icon">⚙</span>
+        <span>Settings</span>
+      </button>
+
+    </nav>
+
+  </div>
+
+
+  <!-- TensorFlow.js -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"
+  ></script>
+
+  <!-- COCO-SSD -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"
+  ></script>
+
+  <!-- App -->
+  <script
+    type="module"
+    src="app.js"
+  ></script>
+
+</body>
+</html>
