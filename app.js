@@ -85,7 +85,7 @@ const state = {
 
   selectedTargets: new Set(TARGET_CLASSES),
 
-  confidence: 0.6,
+  confidence: 0.35,
 
   autoSave: true,
 
@@ -1367,7 +1367,7 @@ async function loadModel() {
 
     state.model =
       await cocoSsd.load({
-        base: "lite_mobilenet_v2",
+        base: "mobilenet_v2",
       });
 
     setModelStatus(
