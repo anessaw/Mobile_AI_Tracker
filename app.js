@@ -29,7 +29,7 @@ const MOCK_STORAGE_KEY = "edge_ai_inventory_mock_logs";
 const DEVICE_STORAGE_KEY = "edge_ai_inventory_device_id";
 
 const SAVE_THROTTLE_MS = 3000;
-const MAX_VISIBLE_LOGS = 30;
+const MAX_VISIBLE_LOGS = 50;
 
 const TARGET_CLASSES = [
   "mouse",
