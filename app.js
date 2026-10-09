@@ -1332,36 +1332,15 @@ async function startCamera() {
   try {
     const facingMode = el.facingMode.value;
 
-    const isMobile = window.matchMedia(
-      "(max-width: 768px)"
-    ).matches;
-
-    state.stream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: {
-            ideal: facingMode,
-          },
-
-          width: {
-            ideal: isMobile ? 720 : 1280,
-          },
-
-          height: {
-            ideal: isMobile ? 1280 : 720,
-          },
-
-          ...(isMobile
-            ? {
-                aspectRatio: {
-                  ideal: 9 / 16,
-                },
-              }
-            : {}),
-        },
-
-        audio: false,
-      });
+state.stream =
+  await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: {
+        ideal: facingMode,
+      },
+    },
+    audio: false,
+  });
 
     el.video.srcObject = state.stream;
 
