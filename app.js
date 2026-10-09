@@ -1366,9 +1366,7 @@ async function loadModel() {
     await tf.ready();
 
     state.model =
-      await cocoSsd.load({
-        base: "mobilenet_v2",
-      });
+      await cocoSsd.load({base: "mobilenet_v2",});
 
     setModelStatus(
       "Model siap",
