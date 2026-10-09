@@ -16,19 +16,15 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 
 <body>
 
   <div class="app-shell">
 
-    <!-- ======================================================
-         SCANNER SCREEN
-         ====================================================== -->
     <main id="scannerPage" class="app-page active-page">
 
-      <!-- Header -->
       <header class="scanner-header">
         <div class="brand-group">
           <div class="brand-icon">🌷</div>
@@ -56,13 +52,10 @@
         </div>
       </header>
 
-
-      <!-- Camera -->
       <section class="scanner-camera-section">
 
         <div id="cameraContainer" class="camera-container">
 
-        <!-- Kamera utama -->
         <video
           id="video"
           autoplay
@@ -70,10 +63,8 @@
           muted
         ></video>
 
-        <!-- Bounding box AI -->
         <canvas id="canvas"></canvas>
 
-          <!-- Camera overlay message -->
           <div id="overlayMsg" class="overlay-msg">
             <div class="overlay-spinner"></div>
             <p id="overlayText">
@@ -81,7 +72,6 @@
             </p>
           </div>
 
-          <!-- Quick camera controls -->
           <div class="camera-actions">
 
             <button
@@ -130,8 +120,6 @@
 
           </div>
 
-
-          <!-- Detection result overlay -->
           <div class="detection-result">
 
             <div class="detection-main">
@@ -151,8 +139,6 @@
 
           </div>
 
-
-          <!-- AI status -->
           <div class="ai-ready-pill">
             <span class="status-dot"></span>
 
@@ -163,8 +149,6 @@
 
         </div>
 
-
-        <!-- Main scan button -->
         <div class="scan-action-wrap">
 
           <button
@@ -176,9 +160,6 @@
             <span>Start Scanning</span>
           </button>
 
-          <!-- Existing Project 4 buttons.
-               Tetap dipertahankan karena app.js lama
-               masih membutuhkannya. -->
           <div class="legacy-controls">
 
             <select id="facingMode" aria-label="Pilih kamera">
@@ -209,11 +190,6 @@
 
       </section>
 
-
-      <!-- Target objects -->
-      
-
-      <!-- Detection summary -->
       <section class="result-summary">
 
         <div class="summary-icon">
@@ -237,10 +213,6 @@
 
     </main>
 
-
-    <!-- ======================================================
-         HISTORY SCREEN
-         ====================================================== -->
     <main id="historyPage" class="app-page">
 
       <header class="page-header">
@@ -272,8 +244,6 @@
 
       </header>
 
-
-      <!-- Sync status -->
       <div class="history-status-row">
 
         <span id="syncIndicator" class="sync-indicator">
@@ -287,8 +257,6 @@
 
       </div>
 
-
-      <!-- History list -->
       <section class="history-list-section">
 
         <div
@@ -316,8 +284,6 @@
 
       </section>
 
-
-      <!-- Export -->
       <div class="history-bottom-action">
 
         <button
@@ -332,10 +298,6 @@
 
     </main>
 
-
-    <!-- ======================================================
-         SETTINGS SCREEN
-         ====================================================== -->
     <main id="settingsPage" class="app-page">
 
       <header class="page-header">
@@ -386,7 +348,6 @@
 
       </section>
       
-      <!-- Detection confidence -->
       <section class="settings-card">
 
         <div class="settings-card-header">
@@ -406,7 +367,6 @@
           </strong>
 
         </div>
-
 
         <label
           for="confidenceRange"
@@ -432,8 +392,6 @@
 
       </section>
 
-
-      <!-- Database -->
       <section class="settings-card">
 
         <div class="settings-card-header">
@@ -474,8 +432,6 @@
 
       </section>
 
-
-      <!-- Auto save -->
       <section class="settings-card setting-row">
 
         <div>
@@ -497,8 +453,6 @@
 
       </section>
 
-
-      <!-- Clear data -->
       <section class="settings-card setting-row">
 
         <div>
@@ -518,8 +472,6 @@
 
       </section>
 
-
-      <!-- Export -->
       <section class="settings-card setting-row">
 
         <div>
@@ -539,8 +491,6 @@
 
       </section>
 
-
-      <!-- AI controls -->
       <section class="settings-card">
 
         <div class="settings-card-header">
@@ -620,29 +570,8 @@
 
       </section>
 
-
-      <!-- About -->
-      <section class="settings-card about-card">
-
-        <div>
-          <h3>About</h3>
-          <p>
-            Edge AI Inventory Scanner
-          </p>
-        </div>
-
-        <span class="about-arrow">
-          ›
-        </span>
-
-      </section>
-
     </main>
 
-
-    <!-- ======================================================
-         BOTTOM NAVIGATION
-         ====================================================== -->
     <nav class="bottom-nav">
 
       <button
@@ -664,7 +593,6 @@
         <span>History</span>
       </button>
 
-
       <button
         class="nav-item"
         data-page-target="settings"
@@ -678,18 +606,14 @@
 
   </div>
 
-
-  <!-- TensorFlow.js -->
   <script
     src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"
   ></script>
 
-  <!-- COCO-SSD -->
   <script
     src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"
   ></script>
 
-  <!-- App -->
   <script
    type="module"
     src="app.js" 

@@ -12,11 +12,6 @@ import {
   addDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
-
-/* =========================================================
-   FIREBASE CONFIG
-   ========================================================= */
-
 const firebaseConfig = {
   apiKey: "AIzaSyBkXRY91cIA24l8io4IXpuf8WCs-XzqzkY",
   authDomain: "praktik-nessa-p1-243026010.firebaseapp.com",
@@ -28,11 +23,6 @@ const firebaseConfig = {
   messagingSenderId: "899976657760",
   appId: "1:899976657760:web:a02ea4c386c337e0ec7c05",
 };
-
-
-/* =========================================================
-   CONSTANTS
-   ========================================================= */
 
 const LOG_COLLECTION = "detection_logs";
 const MOCK_STORAGE_KEY = "edge_ai_inventory_mock_logs";
@@ -55,10 +45,10 @@ const CLASS_LABELS = {
   mouse: "Mouse",
   keyboard: "Keyboard",
   "cell phone": "HP / Cell Phone",
-  book: "Buku",
-  scissors: "Gunting",
+  book: "Book",
+  scissors: "Scissors",
   laptop: "Laptop",
-  person: "Orang",
+  person: "Person",
 };
 
 const CLASS_EMOJIS = {
@@ -70,11 +60,6 @@ const CLASS_EMOJIS = {
   laptop: "💻",
   person: "👤",
 };
-
-
-/* =========================================================
-   STATE
-   ========================================================= */
 
 const state = {
   dbMode: "mock",
@@ -109,13 +94,7 @@ const state = {
   logs: [],
 };
 
-
-/* =========================================================
-   DOM REFERENCES
-   ========================================================= */
-
 const el = {
-  // Camera
   video: document.getElementById("video"),
   canvas: document.getElementById("canvas"),
   ctx: document.getElementById("canvas").getContext("2d"),
@@ -124,32 +103,26 @@ const el = {
   overlayMsg: document.getElementById("overlayMsg"),
   overlayText: document.getElementById("overlayText"),
 
-  // Legacy controls
   startCameraBtn: document.getElementById("startCameraBtn"),
   stopCameraBtn: document.getElementById("stopCameraBtn"),
   facingMode: document.getElementById("facingMode"),
 
-  // AI
   loadModelBtn: document.getElementById("loadModelBtn"),
   toggleAiBtn: document.getElementById("toggleAiBtn"),
   modelStatus: document.getElementById("modelStatus"),
   aiState: document.getElementById("aiState"),
 
-  // Database
   dbStatus: document.getElementById("dbStatus"),
   logModeBadge: document.getElementById("logModeBadge"),
   syncIndicator: document.getElementById("syncIndicator"),
 
-  // Confidence
   confidenceRange: document.getElementById("confidenceRange"),
   confidenceValue: document.getElementById("confidenceValue"),
 
-  // Target
   targetClasses: document.getElementById("targetClasses"),
   targetSelectedCount:
     document.getElementById("targetSelectedCount"),
 
-  // Detection result
   detectionCount:
     document.getElementById("detectionCount"),
 
@@ -168,11 +141,9 @@ const el = {
   aiReadyText:
     document.getElementById("aiReadyText"),
 
-  // Camera status
   cameraStatus:
     document.getElementById("cameraStatus"),
 
-  // History
   logCount:
     document.getElementById("logCount"),
 
@@ -185,14 +156,12 @@ const el = {
   clearLogsBtn:
     document.getElementById("clearLogsBtn"),
 
-  // Navigation
   navItems:
     document.querySelectorAll(".nav-item"),
 
   pageTargets:
     document.querySelectorAll("[data-page-target]"),
 
-  // Scanner quick actions
   quickCameraBtn:
     document.getElementById("quickCameraBtn"),
 
@@ -208,7 +177,6 @@ const el = {
   mainScanBtn:
     document.getElementById("mainScanBtn"),
 
-  // Settings
   settingsTopBtn:
     document.getElementById("settingsTopBtn"),
 
@@ -224,11 +192,6 @@ const el = {
   autoSaveToggle:
     document.getElementById("autoSaveToggle"),
 };
-
-
-/* =========================================================
-   FIREBASE VALIDATION
-   ========================================================= */
 
 function hasValidFirebaseConfig() {
   const required = [
@@ -247,11 +210,6 @@ function hasValidFirebaseConfig() {
     !firebaseConfig.appId.includes("PASTE_")
   );
 }
-
-
-/* =========================================================
-   FIREBASE
-   ========================================================= */
 
 function initFirebase() {
   if (state.firebaseEnabled && state.db) {
@@ -279,11 +237,6 @@ function initFirebase() {
   }
 }
 
-
-/* =========================================================
-   DEVICE ID
-   ========================================================= */
-
 function getDeviceId() {
   let id = localStorage.getItem(DEVICE_STORAGE_KEY);
 
@@ -299,11 +252,6 @@ function getDeviceId() {
 
   return id;
 }
-
-
-/* =========================================================
-   MOCK STORAGE
-   ========================================================= */
 
 function readMockLogs() {
   try {
@@ -340,11 +288,6 @@ function getMockLogsSorted() {
       new Date(a.timestamp).getTime()
   );
 }
-
-
-/* =========================================================
-   MOCK LISTENER
-   ========================================================= */
 
 function mockListen(callback) {
   const render = () => {
@@ -383,11 +326,6 @@ function mockListen(callback) {
   };
 }
 
-
-/* =========================================================
-   FIRESTORE TIMESTAMP
-   ========================================================= */
-
 function normalizeFirestoreTimestamp(value) {
   if (!value) {
     return null;
@@ -403,11 +341,6 @@ function normalizeFirestoreTimestamp(value) {
 
   return String(value);
 }
-
-
-/* =========================================================
-   NORMALIZE LOG
-   ========================================================= */
 
 function normalizeLog(
   doc,
@@ -454,11 +387,6 @@ function normalizeLog(
         : "mock"),
   };
 }
-
-
-/* =========================================================
-   DATABASE LISTENER
-   ========================================================= */
 
 function closeDbListener() {
   if (state.unsubscribe) {
@@ -558,11 +486,6 @@ function listenToDatabase() {
     }
   );
 }
-
-
-/* =========================================================
-   SAVE DETECTION
-   ========================================================= */
 
 async function saveToDatabase(
   detections
@@ -671,11 +594,6 @@ async function saveToDatabase(
     return false;
   }
 }
-
-
-/* =========================================================
-   EXPORT CSV
-   ========================================================= */
 
 async function exportLogsAsCsv() {
   let logs = [];
@@ -806,11 +724,6 @@ async function exportLogsAsCsv() {
   }
 }
 
-
-/* =========================================================
-   CLEAR MOCK
-   ========================================================= */
-
 function clearMockLogs() {
   if (
     state.dbMode !== "mock"
@@ -840,11 +753,6 @@ function clearMockLogs() {
     )
   );
 }
-
-
-/* =========================================================
-   STATUS UI
-   ========================================================= */
 
 function setDbStatus(
   text,
@@ -913,11 +821,6 @@ function setOverlay(
   );
 }
 
-
-/* =========================================================
-   TARGET COUNT
-   ========================================================= */
-
 function updateTargetSelectedCount() {
   const count =
     state.selectedTargets.size;
@@ -930,11 +833,6 @@ function updateTargetSelectedCount() {
       `${count}/${total} dipilih`;
   }
 }
-
-
-/* =========================================================
-   TARGET CHECKBOXES
-   ========================================================= */
 
 function renderTargetCheckboxes() {
   if (!el.targetClasses) {
@@ -1014,11 +912,6 @@ function renderTargetCheckboxes() {
 
   updateTargetSelectedCount();
 }
-
-
-/* =========================================================
-   DETECTION RESULT UI
-   ========================================================= */
 
 function updateDetectionResult(
   predictions
@@ -1121,11 +1014,6 @@ function updateDetectionResult(
   }
 }
 
-
-/* =========================================================
-   HISTORY RENDER
-   ========================================================= */
-
 function renderLogs() {
   if (el.logCount) {
     el.logCount.textContent =
@@ -1223,11 +1111,6 @@ function renderLogs() {
   updateClearButtons();
 }
 
-
-/* =========================================================
-   DATE
-   ========================================================= */
-
 function formatDate(value) {
   if (!value) {
     return "-";
@@ -1255,11 +1138,6 @@ function formatDate(value) {
   ).format(date);
 }
 
-
-/* =========================================================
-   ESCAPE HTML
-   ========================================================= */
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll(
@@ -1284,11 +1162,6 @@ function escapeHtml(value) {
     );
 }
 
-
-/* =========================================================
-   CANVAS
-   ========================================================= */
-
 function syncCanvasSize() {
   if (
     !el.video.videoWidth ||
@@ -1312,9 +1185,17 @@ function syncCanvasSize() {
 }
 
 
-/* =========================================================
-   CAMERA
-   ========================================================= */
+function fitCameraContainer() {
+  if (
+    !el.video.videoWidth ||
+    !el.video.videoHeight
+  ) {
+    return;
+  }
+
+  el.cameraContainer.style.width = "100%";
+  el.cameraContainer.style.height = "100%";
+}
 
 async function startCamera() {
   if (!navigator.mediaDevices?.getUserMedia) {
@@ -1332,19 +1213,30 @@ async function startCamera() {
   try {
     const facingMode = el.facingMode.value;
 
+const isMobile = window.matchMedia(
+  "(max-width: 768px)"
+).matches;
+
 state.stream =
   await navigator.mediaDevices.getUserMedia({
     video: {
       facingMode: {
         ideal: facingMode,
       },
+
+      ...(!isMobile
+        ? {
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            aspectRatio: { ideal: 16 / 9 },
+          }
+        : {}),
     },
     audio: false,
   });
 
     el.video.srcObject = state.stream;
 
-    // Jangan mirror kamera
     el.video.style.transform = "scaleX(1)";
     el.canvas.style.transform = "scaleX(1)";
 
@@ -1364,6 +1256,7 @@ state.stream =
       }
     });
 
+    fitCameraContainer();
     syncCanvasSize();
 
     state.cameraStarted = true;
@@ -1443,11 +1336,6 @@ function stopCamera() {
 
   updateDetectionResult([]);
 }
-
-
-/* =========================================================
-   MODEL
-   ========================================================= */
 
 async function loadModel() {
   if (
@@ -1540,11 +1428,6 @@ async function loadModel() {
       false;
   }
 }
-
-
-/* =========================================================
-   DRAW DETECTIONS
-   ========================================================= */
 
 function drawDetections(
   predictions
@@ -1654,11 +1537,6 @@ function drawDetections(
   );
 }
 
-
-/* =========================================================
-   DETECTION LOOP
-   ========================================================= */
-
 async function detectFrame() {
   if (!state.isDetecting) {
     return;
@@ -1696,10 +1574,6 @@ async function detectFrame() {
           el.video
         );
 
-      /*
-       * Hanya target yang dipilih
-       * dan memenuhi confidence threshold.
-       */
       const targetPredictions =
         predictions.filter(
           (pred) =>
@@ -1710,10 +1584,6 @@ async function detectFrame() {
               state.confidence
         );
 
-      /*
-       * Hanya object yang lolos
-       * filter yang digambar.
-       */
       drawDetections(
         targetPredictions
       );
@@ -1746,11 +1616,6 @@ async function detectFrame() {
       detectFrame
     );
 }
-
-
-/* =========================================================
-   AI START / STOP
-   ========================================================= */
 
 async function startDetection() {
   if (!state.cameraStarted) {
@@ -1866,11 +1731,6 @@ function stopDetection() {
   updateQuickAiButton();
 }
 
-
-/* =========================================================
-   START SCANNING
-   ========================================================= */
-
 async function startScanning() {
   const ready =
     await startDetection();
@@ -1905,11 +1765,6 @@ async function toggleMainScanning() {
   await startScanning();
 }
 
-
-/* =========================================================
-   QUICK CAMERA
-   ========================================================= */
-
 function updateQuickCameraButton() {
   if (!el.quickCameraBtn) {
     return;
@@ -1932,11 +1787,6 @@ async function toggleQuickCamera() {
 
   await startCamera();
 }
-
-
-/* =========================================================
-   SWITCH CAMERA
-   ========================================================= */
 
 async function switchCamera() {
   const wasDetecting =
@@ -1962,11 +1812,6 @@ async function switchCamera() {
     }
   }
 }
-
-
-/* =========================================================
-   FLASH / TORCH
-   ========================================================= */
 
 async function toggleFlash() {
   if (
@@ -2041,11 +1886,6 @@ async function toggleFlash() {
   }
 }
 
-
-/* =========================================================
-   QUICK AI
-   ========================================================= */
-
 async function toggleQuickAi() {
   if (state.isDetecting) {
     stopDetection();
@@ -2054,11 +1894,6 @@ async function toggleQuickAi() {
 
   await startDetection();
 }
-
-
-/* =========================================================
-   DATABASE MODE
-   ========================================================= */
 
 function applyDbMode(mode) {
   state.dbMode =
@@ -2146,11 +1981,6 @@ function applyDbMode(mode) {
   listenToDatabase();
 }
 
-
-/* =========================================================
-   CLEAR BUTTON STATE
-   ========================================================= */
-
 function updateClearButtons() {
   const noData =
     state.logs.length === 0;
@@ -2169,11 +1999,6 @@ function updateClearButtons() {
       disabled;
   }
 }
-
-
-/* =========================================================
-   AUTO SAVE
-   ========================================================= */
 
 function updateAutoSaveUI() {
   if (!el.autoSaveToggle) {
@@ -2197,11 +2022,6 @@ function toggleAutoSave() {
 
   updateAutoSaveUI();
 }
-
-
-/* =========================================================
-   PAGE NAVIGATION
-   ========================================================= */
 
 function showPage(pageName) {
   const pageId =
@@ -2232,13 +2052,6 @@ function showPage(pageName) {
       }
     );
 }
-
-
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
-
-// Legacy Project 4 controls
 
 el.startCameraBtn.addEventListener(
   "click",
@@ -2273,9 +2086,6 @@ el.facingMode.addEventListener(
   }
 );
 
-
-// Confidence
-
 el.confidenceRange.addEventListener(
   "input",
   (event) => {
@@ -2303,9 +2113,6 @@ el.confidenceRange.addEventListener(
   }
 );
 
-
-// Database
-
 document
   .querySelectorAll(
     "[data-db-mode]"
@@ -2322,9 +2129,6 @@ document
       );
     }
   );
-
-
-// History
 
 el.exportBtn.addEventListener(
   "click",
@@ -2346,56 +2150,35 @@ el.clearSettingsBtn.addEventListener(
   clearMockLogs
 );
 
-
-// Auto Save
-
 el.autoSaveToggle.addEventListener(
   "click",
   toggleAutoSave
 );
-
-
-// Quick Camera
 
 el.quickCameraBtn.addEventListener(
   "click",
   toggleQuickCamera
 );
 
-
-// Switch camera
-
 el.quickSwitchBtn.addEventListener(
   "click",
   switchCamera
 );
-
-
-// AI Scan
 
 el.quickAiBtn.addEventListener(
   "click",
   toggleQuickAi
 );
 
-
-// Flash
-
 el.quickFlashBtn.addEventListener(
   "click",
   toggleFlash
 );
 
-
-// Main scanning button
-
 el.mainScanBtn.addEventListener(
   "click",
   toggleMainScanning
 );
-
-
-// Navigation
 
 el.pageTargets.forEach(
   (button) => {
@@ -2416,16 +2199,10 @@ el.pageTargets.forEach(
   }
 );
 
-
-// Resize
-
-window.addEventListener(
-  "resize",
-  syncCanvasSize
-);
-
-
-// Before unload
+window.addEventListener("resize", () => {
+  fitCameraContainer();
+  syncCanvasSize();
+});
 
 window.addEventListener(
   "beforeunload",
@@ -2434,11 +2211,6 @@ window.addEventListener(
     stopCamera();
   }
 );
-
-
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
 
 function initApp() {
   renderTargetCheckboxes();
@@ -2489,11 +2261,6 @@ function initApp() {
   );
 }
 
-
-/* =========================================================
-   QUICK AI BUTTON UI
-   ========================================================= */
-
 function updateQuickAiButton() {
   if (!el.quickAiBtn) {
     return;
@@ -2515,10 +2282,5 @@ function updateQuickAiButton() {
       `✳<span>AI Scan</span>`;
   }
 }
-/* =========================================================
-   START APP
-   ========================================================= */
-
-
    
 initApp();
