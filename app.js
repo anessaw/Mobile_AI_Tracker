@@ -1338,12 +1338,17 @@ function stopCamera() {
 }
 
 async function loadModel() {
-  if (
-    state.model ||
-    state.modelLoading
-  ) {
-    return !!state.model;
+  if (state.model) {
+  return true;
+}
+
+if (state.modelLoading) {
+  while (state.modelLoading) {
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
+
+  return !!state.model;
+}
 
   state.modelLoading = true;
 
@@ -1357,16 +1362,17 @@ async function loadModel() {
     "warn"
   );
 
+  if (!state.cameraStarted) {
   setOverlay(
     "Mengunduh model COCO-SSD...",
     true
   );
+}
 
   try {
     await tf.ready();
 
-    state.model =
-      await cocoSsd.load({base: "mobilenet_v2",});
+    state.model = await cocoSsd.load({base: "mobilenet_v2"});
 
     setModelStatus(
       "Model siap",
@@ -1411,10 +1417,12 @@ async function loadModel() {
       "warn"
     );
 
-    setOverlay(
-      "Gagal memuat model. Pastikan internet aktif.",
-      true
-    );
+    if (!state.cameraStarted) {
+  setOverlay(
+    "Gagal memuat model. Pastikan internet aktif.",
+    true
+  );
+}
 
     alert(
       "Gagal memuat COCO-SSD. Coba refresh halaman dan pastikan koneksi internet aktif."
@@ -1536,86 +1544,116 @@ function drawDetections(
 }
 
 async function detectFrame() {
-  if (!state.isDetecting) {
-    return;
-  }
+  if (!state.isDetecting) return;
 
-  if (
-    !state.cameraStarted ||
-    !state.model
-  ) {
+  if (!state.cameraStarted || !state.model) {
     stopDetection();
     return;
   }
 
-  if (
-    state.selectedTargets.size ===
-    0
-  ) {
+  if (state.selectedTargets.size === 0) {
     stopDetection();
 
-    updateDetectionResult([]);
-
-    return;
-  }
-
-  if (
-    !state.detectionBusy &&
-    el.video.readyState >= 2
-  ) {
-    state.detectionBusy =
-      true;
-
-    try {
-      const predictions = await state.model.detect(el.video);
-      console.table(
-  predictions.map((pred) => ({
-    class: pred.class,
-    confidence: `${(pred.score * 100).toFixed(1)}%`,
-  }))
-);
-
-      const targetPredictions =
-        predictions.filter(
-          (pred) =>
-            state.selectedTargets.has(
-              pred.class
-            ) &&
-            pred.score >=
-              state.confidence
-        );
-
-      drawDetections(
-        targetPredictions
-      );
-
-      updateDetectionResult(
-        targetPredictions
-      );
-
-      if (
-        targetPredictions.length >
-        0
-      ) {
-        await saveToDatabase(
-          targetPredictions
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Detection error:",
-        error
-      );
-    } finally {
-      state.detectionBusy =
-        false;
+    if (el.detectedObjectInfo) {
+      el.detectedObjectInfo.textContent =
+        "Pilih minimal satu target objek.";
     }
+
+    return;
   }
 
-  state.frameHandle =
-    requestAnimationFrame(
-      detectFrame
+  // Tunggu kamera siap dan proses sebelumnya selesai.
+  if (
+    state.detectionBusy ||
+    el.video.readyState < 2 ||
+    !el.video.videoWidth ||
+    !el.video.videoHeight
+  ) {
+    state.frameHandle =
+      requestAnimationFrame(detectFrame);
+    return;
+  }
+
+  state.detectionBusy = true;
+
+  try {
+    const predictions = await state.model.detect(
+      el.video,
+      20,
+      state.confidence
     );
+
+    const targetPredictions = predictions.filter(
+      (pred) =>
+        state.selectedTargets.has(pred.class) &&
+        pred.score >= state.confidence
+    );
+
+    drawDetections(targetPredictions);
+    updateDetectionResult(targetPredictions);
+
+    if (
+      targetPredictions.length === 0 &&
+      el.detectedObjectInfo
+    ) {
+      const seenClasses = [
+        ...new Set(predictions.map((pred) => pred.class))
+      ];
+
+      el.detectedObjectInfo.textContent =
+        seenClasses.length > 0
+          ? `Objek terlihat: ${seenClasses.slice(0, 4).join(", ")}`
+          : "Belum ada objek dikenali. Dekatkan objek ke kamera.";
+    }
+
+    if (targetPredictions.length > 0) {
+      await saveToDatabase(targetPredictions);
+    }
+  } catch (error) {
+    console.error("Detection error:", error);
+
+    // Tampilkan penyebabnya agar tidak terlihat diam saja.
+    state.isDetecting = false;
+
+    setModelStatus("Deteksi error", "warn");
+
+    if (el.detectedObjectInfo) {
+      el.detectedObjectInfo.textContent =
+        `Deteksi gagal: ${error.message}`;
+    }
+
+    if (el.aiReadyText) {
+      el.aiReadyText.textContent = "Deteksi gagal";
+    }
+
+    if (el.aiState) {
+      el.aiState.textContent = "ERROR";
+      el.aiState.className = "mini-state";
+    }
+
+    if (el.toggleAiBtn) {
+      el.toggleAiBtn.textContent = "▶ Start AI";
+      el.toggleAiBtn.className =
+        "settings-full-btn success-btn";
+    }
+
+    if (el.mainScanBtn) {
+      el.mainScanBtn.innerHTML =
+        '<span class="scan-icon">⌾</span>' +
+        '<span>Start Scanning</span>';
+
+      el.mainScanBtn.dataset.active = "false";
+    }
+
+    updateQuickAiButton();
+  } finally {
+    state.detectionBusy = false;
+  }
+
+  if (state.isDetecting) {
+    state.frameHandle =
+      requestAnimationFrame(detectFrame);
+  }
 }
 
 async function startDetection() {
@@ -1733,15 +1771,48 @@ function stopDetection() {
 }
 
 async function startScanning() {
-  const ready =
-    await startDetection();
+  const btn = el.mainScanBtn;
+  const info = el.detectedObjectInfo;
 
-  if (ready) {
-    el.mainScanBtn.textContent =
-      "⏸ Stop Scanning";
+  // Tampilkan respons segera saat diklik
+  btn.textContent = "Menyiapkan Scanner...";
 
-    el.mainScanBtn.dataset.active =
-      "true";
+  if (info) {
+    info.textContent = "Memulai kamera dan AI...";
+  }
+
+  try {
+    const ready = await startDetection();
+
+    if (!ready) {
+      btn.textContent = "Start Scanning";
+      btn.dataset.active = "false";
+
+      if (info) {
+        info.textContent =
+          "Scanner gagal dimulai. Periksa izin kamera dan status model.";
+      }
+
+      return;
+    }
+
+    btn.innerHTML =
+      '<span class="scan-icon">⌾</span>' +
+      '<span>⏸ Stop Scanning</span>';
+
+    btn.dataset.active = "true";
+
+  } catch (error) {
+    console.error("Start scanning error:", error);
+
+    btn.textContent = "Start Scanning";
+    btn.dataset.active = "false";
+
+    if (info) {
+      info.textContent =
+        "Gagal memulai: " +
+        (error.message || String(error));
+    }
   }
 }
 

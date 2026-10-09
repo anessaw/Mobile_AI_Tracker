@@ -16,7 +16,7 @@
     rel="stylesheet"
   />
 
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 
 <body>
@@ -65,12 +65,20 @@
 
         <canvas id="canvas"></canvas>
 
-          <div id="overlayMsg" class="overlay-msg">
-            <div class="overlay-spinner"></div>
-            <p id="overlayText">
-              Siapkan kamera untuk memulai.
-            </p>
+          
+        <div id="overlayMsg" class="overlay-msg">
+          <div class="overlay-camera-icon" aria-hidden="true">
+            📷
           </div>
+
+          <h2 class="overlay-title">Kamera belum aktif</h2>
+
+          <p id="overlayText">
+            Tekan tombol kamera untuk meminta izin dan
+            menyalakan kamera perangkat.
+          </p>
+        </div>
+
 
           <div class="camera-actions">
 
