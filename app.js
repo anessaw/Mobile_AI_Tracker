@@ -1567,10 +1567,13 @@ async function detectFrame() {
       true;
 
     try {
-      const predictions =
-        await state.model.detect(
-          el.video
-        );
+      const predictions = await state.model.detect(el.video);
+      console.table(
+  predictions.map((pred) => ({
+    class: pred.class,
+    confidence: `${(pred.score * 100).toFixed(1)}%`,
+  }))
+);
 
       const targetPredictions =
         predictions.filter(
