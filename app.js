@@ -85,7 +85,7 @@ const state = {
 
   selectedTargets: new Set(TARGET_CLASSES),
 
-  confidence: 0.35,
+  confidence: 0.30,
 
   autoSave: true,
 
