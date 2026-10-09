@@ -820,36 +820,44 @@ select:focus-visible {
    Dibuat compact sebagai overlay panel
    ========================================================= */
 
-#scannerPage .target-section {
-  position: absolute;
+#settingsPage .target-section {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
 
-  left: 12px;
-  right: 12px;
+  width: 100%;
+  margin: 0 auto 9px;
 
-  bottom:
-    calc(
-      var(--nav-height) +
-      66px +
-      env(safe-area-inset-bottom)
-    );
-
-  z-index: 23;
-
-  padding: 9px 10px;
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 15px;
-
-  background:
-    rgba(255, 255, 255, 0.92);
-
-  box-shadow:
-    0 8px 25px
-    rgba(0, 0, 0, 0.18);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  padding: 13px;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(190, 24, 93, 0.04);
 }
+
+#settingsPage .target-section .section-title-row p {
+  display: block;
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+#settingsPage .target-list {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+#settingsPage .target-option {
+  min-height: 38px;
+  padding: 8px;
+  font-size: 11px;
+}
+
+#settingsPage .target-option span {
+  white-space: normal;
+} 
 
 .section-title-row {
   display: flex;
@@ -1010,19 +1018,16 @@ select:focus-visible {
       env(safe-area-inset-bottom)
     );
 
-  background:
-    rgba(255, 255, 255, 0.97);
+  background: rgba(255, 255, 255, 0.94);
 
   border-top:
-    1px solid
-    #f0e5ea;
+  1px solid
+  rgba(255, 255, 255, 0.15);
 
-  box-shadow:
-    0 -8px 28px
-    rgba(44, 28, 35, 0.08);
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+backdrop-filter: none;
+-webkit-backdrop-filter: none;
 }
 
 .nav-item {
@@ -1054,8 +1059,7 @@ select:focus-visible {
 
 .nav-item.active {
   color: var(--pink-600);
-
-  background: var(--pink-50);
+  background: rgba(236, 72, 153, 0.18);
 }
 
 .nav-item.active::after {
@@ -1984,9 +1988,17 @@ input[type="range"] {
    ========================================================= */
 
 @media (min-width: 768px) {
+  body {
+    background: #eee9ed;
+  }
+
   .app-shell {
-    width: 100vw;
-    max-width: none;
+    width: min(100vw, 430px);
+    max-width: 430px;
+    height: 100dvh;
+    min-height: 100dvh;
+    margin: 0 auto;
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.15);
   }
 
   .scanner-header {
