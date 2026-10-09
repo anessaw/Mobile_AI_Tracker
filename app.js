@@ -1435,9 +1435,7 @@ if (state.modelLoading) {
   }
 }
 
-function drawDetections(
-  predictions
-) {
+function drawDetections(predictions) {
   syncCanvasSize();
 
   const ctx = el.ctx;
@@ -1451,96 +1449,90 @@ function drawDetections(
 
   const scaleX =
     el.canvas.width /
-    Math.max(
-      el.video.videoWidth,
-      1
-    );
+    Math.max(el.video.videoWidth, 1);
 
   const scaleY =
     el.canvas.height /
-    Math.max(
-      el.video.videoHeight,
-      1
+    Math.max(el.video.videoHeight, 1);
+
+  const isMobile = window.matchMedia(
+    "(max-width: 768px)"
+  ).matches;
+
+  const lineWidth = isMobile ? 2 : 3;
+  const fontSize = isMobile ? 10 : 14;
+  const labelHeight = isMobile ? 18 : 25;
+  const labelPadding = isMobile ? 8 : 14;
+  const textX = isMobile ? 4 : 7;
+  const textY = isMobile ? 12 : 17;
+
+  predictions.forEach((pred) => {
+    const [x, y, width, height] = pred.bbox;
+
+    const rawX = x * scaleX;
+    const rawY = y * scaleY;
+    const rawW = width * scaleX;
+    const rawH = height * scaleY;
+
+    const maxBoxW = el.canvas.width * 0.55;
+    const maxBoxH = el.canvas.height * 0.45;
+
+    const boxScale = isMobile
+      ? Math.min(
+          0.78,
+          maxBoxW / Math.max(rawW, 1),
+          maxBoxH / Math.max(rawH, 1)
+        )
+      : 1;
+
+    const canvasW = rawW * boxScale;
+    const canvasH = rawH * boxScale;
+
+    const canvasX = rawX + (rawW - canvasW) / 2;
+    const canvasY = rawY + (rawH - canvasH) / 2;
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = "#ec4899";
+
+    ctx.strokeRect(
+      canvasX,
+      canvasY,
+      canvasW,
+      canvasH
     );
 
-  predictions.forEach(
-    (pred) => {
-      const [
-        x,
-        y,
-        width,
-        height,
-      ] = pred.bbox;
+    const label =
+      `${CLASS_LABELS[pred.class] || pred.class} ` +
+      `${(pred.score * 100).toFixed(0)}%`;
 
-      const canvasX =
-        x * scaleX;
+    ctx.font =
+      `700 ${fontSize}px Nunito, sans-serif`;
 
-      const canvasY =
-        y * scaleY;
+    const labelWidth =
+      ctx.measureText(label).width + labelPadding;
 
-      const canvasW =
-        width * scaleX;
+    const labelY = Math.max(
+      canvasY - labelHeight,
+      0
+    );
 
-      const canvasH =
-        height * scaleY;
+    ctx.fillStyle = "#ec4899";
 
-      ctx.lineWidth = 3;
+    ctx.fillRect(
+      canvasX,
+      labelY,
+      labelWidth,
+      labelHeight
+    );
 
-      ctx.strokeStyle =
-        "#ec4899";
+    ctx.fillStyle = "#ffffff";
 
-      ctx.strokeRect(
-        canvasX,
-        canvasY,
-        canvasW,
-        canvasH
-      );
-
-      const label =
-        `${
-          CLASS_LABELS[
-            pred.class
-          ] ||
-          pred.class
-        } ${
-          (
-            pred.score * 100
-          ).toFixed(0)
-        }%`;
-
-      ctx.font =
-        "700 14px Nunito, sans-serif";
-
-      const labelWidth =
-        ctx.measureText(label)
-          .width + 14;
-
-      const labelY =
-        Math.max(
-          canvasY - 25,
-          0
-        );
-
-      ctx.fillStyle =
-        "#ec4899";
-
-      ctx.fillRect(
-        canvasX,
-        labelY,
-        labelWidth,
-        25
-      );
-
-      ctx.fillStyle =
-        "#ffffff";
-
-      ctx.fillText(
-        label,
-        canvasX + 7,
-        labelY + 17
-      );
-    }
-  );
+    ctx.fillText(
+      label,
+      canvasX + textX,
+      labelY + textY
+    );
+  });
 }
 
 async function detectFrame() {
